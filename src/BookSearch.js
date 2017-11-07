@@ -2,6 +2,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import * as BooksAPI from './BooksAPI'
 import Book from './Book'
+import {debounce} from 'throttle-debounce';
+
 
 class BookSearch extends React.Component {
 
@@ -15,7 +17,7 @@ class BookSearch extends React.Component {
 
     atualizaConsulta = (consulta) => {
         this.setState({consulta})
-        this.buscaLivros(consulta)
+        debounce(500,this.buscaLivros(consulta));
     }
 
     buscaLivros = (termoConsulta) => {
@@ -44,7 +46,17 @@ class BookSearch extends React.Component {
     render(){
 
         const {consulta, resultados} = this.state
-        const {bookshelves, onUpdateShelf} = this.props
+        const {bookshelves, onUpdateShelf, selectedBooks} = this.props
+
+        resultados.map(book => {
+            let bookShelf = selectedBooks.find(bk => bk.id === book.id)
+            if (bookShelf !== undefined){
+                if (book.id === bookShelf.id){
+                    book.shelf = bookShelf.shelf;
+                }
+            }
+            return bookShelf;
+        })
 
         return (
             <div className="search-books">
